@@ -1,63 +1,69 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 
+/* ---------------------------
+   BASIC SETUP
+----------------------------*/
 app.use(cors());
 app.use(express.json());
 
-/* -----------------------------
-   1. TEST ROUTE
-------------------------------*/
+/* ---------------------------
+   SERVE FRONTEND (index.html)
+----------------------------*/
+app.use(express.static(path.join(__dirname, "public")));
+
+/* ---------------------------
+   HOME ROUTE (optional)
+----------------------------*/
 app.get("/", (req, res) => {
-  res.send("AI server is running");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-/* -----------------------------
-   2. GENERATE VIDEO ROUTE
-   (this is where you call Luma)
-------------------------------*/
+/* ---------------------------
+   GENERATE VIDEO ROUTE
+   (connect AI here later)
+----------------------------*/
 app.post("/generate", async (req, res) => {
   const prompt = req.body.prompt;
 
-  console.log("Prompt received:", prompt);
+  console.log("🎬 Prompt received:", prompt);
 
-  // later: call Luma API here
+  // 🔥 LATER: call Luma API here
+  // For now we simulate response
 
   res.json({
     success: true,
-    message: "Generation started"
+    message: "Generation started",
+    prompt: prompt
   });
 });
 
-/* -----------------------------
-   3. CALLBACK / WEBHOOK ROUTE
-   👇 THIS IS WHAT YOU ASKED FOR
-------------------------------*/
+/* ---------------------------
+   LUMA WEBHOOK (callback URL)
+----------------------------*/
 app.post("/webhook/luma", (req, res) => {
-  console.log("🎬 Luma finished video");
+  console.log("🎥 Luma finished video!");
 
   const data = req.body;
   console.log("Webhook data:", data);
 
-  // Try to extract video URL (depends on API response)
-  const videoUrl = data?.video || data?.url || data;
+  const videoUrl = data?.video || data?.url || null;
 
-  console.log("VIDEO READY:", videoUrl);
+  console.log("✅ VIDEO READY:", videoUrl);
 
-  // Here you would normally:
-  // - save to database
-  // - send to frontend
-  // - store per user
+  // Later: save to database or send to frontend
 
   res.sendStatus(200);
 });
 
-/* -----------------------------
-   4. START SERVER (IMPORTANT FOR RENDER)
-------------------------------*/
+/* ---------------------------
+   START SERVER (RENDER READY)
+----------------------------*/
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
